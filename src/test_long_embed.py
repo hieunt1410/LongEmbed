@@ -92,7 +92,7 @@ def main():
             overwrite_results=False,
             batch_size=args.batch_size,
             verbosity=0,
-            retrieval_k_values=[1, 3, 5, 10, 20, 50, 100, 1000],
+            k_values=[1, 3, 5, 10, 20, 50, 100, 1000],
         )
 
         for key, value in results.items():
