@@ -4,6 +4,36 @@ import logging
 
 from mteb import MTEB
 
+# Monkey-patch MTEB to include k=50 in recall metrics
+try:
+    import mteb.evaluation.evaluators.RetrievalEvaluator as RE
+
+    # For older mteb versions
+    if hasattr(RE, "RECALL_AT_K"):
+        RE.RECALL_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
+    if hasattr(RE, "PRECISION_AT_K"):
+        RE.PRECISION_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
+    if hasattr(RE, "MAP_AT_K"):
+        RE.MAP_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
+    if hasattr(RE, "NDCG_AT_K"):
+        RE.NDCG_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
+except:
+    pass
+
+try:
+    # For newer mteb versions
+    from mteb.evaluation.evaluators.retrieval_evaluator import RetrievalEvaluator
+
+    original_init = RetrievalEvaluator.__init__
+
+    def patched_init(self, *args, **kwargs):
+        kwargs.setdefault("k_values", [1, 3, 5, 10, 20, 50, 100, 1000])
+        original_init(self, *args, **kwargs)
+
+    RetrievalEvaluator.__init__ = patched_init
+except:
+    pass
+
 from utils import logger, get_args
 from encoder_model import RetrievalModel
 
@@ -85,14 +115,12 @@ def main():
     if retrieval_task_list != []:
 
         evaluation = MTEB(tasks=retrieval_task_list)
-        # Add k_values to include recall@50
         results = evaluation.run(
             model,
             output_folder=mteb_output_dir,
             overwrite_results=False,
             batch_size=args.batch_size,
             verbosity=0,
-            k_values=[1, 3, 5, 10, 20, 50, 100, 1000],
         )
 
         for key, value in results.items():
