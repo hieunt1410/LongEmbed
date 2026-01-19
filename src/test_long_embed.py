@@ -2,37 +2,18 @@ import os
 import json
 import logging
 
+# Monkey-patch MTEB RetrievalEvaluator BEFORE importing MTEB
+# This adds k=50 to all metrics
+from mteb.evaluation.evaluators import RetrievalEvaluator
+
+_original_re_init = RetrievalEvaluator.__init__
+
+def _patched_re_init(self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs):
+    _original_re_init(self, retriever=retriever, k_values=k_values, **kwargs)
+
+RetrievalEvaluator.__init__ = _patched_re_init
+
 from mteb import MTEB
-
-# Monkey-patch MTEB to include k=50 in recall metrics
-try:
-    import mteb.evaluation.evaluators.RetrievalEvaluator as RE
-
-    # For older mteb versions
-    if hasattr(RE, "RECALL_AT_K"):
-        RE.RECALL_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
-    if hasattr(RE, "PRECISION_AT_K"):
-        RE.PRECISION_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
-    if hasattr(RE, "MAP_AT_K"):
-        RE.MAP_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
-    if hasattr(RE, "NDCG_AT_K"):
-        RE.NDCG_AT_K = [1, 3, 5, 10, 20, 50, 100, 1000]
-except:
-    pass
-
-try:
-    # For newer mteb versions
-    from mteb.evaluation.evaluators.retrieval_evaluator import RetrievalEvaluator
-
-    original_init = RetrievalEvaluator.__init__
-
-    def patched_init(self, *args, **kwargs):
-        kwargs.setdefault("k_values", [1, 3, 5, 10, 20, 50, 100, 1000])
-        original_init(self, *args, **kwargs)
-
-    RetrievalEvaluator.__init__ = patched_init
-except:
-    pass
 
 from utils import logger, get_args
 from encoder_model import RetrievalModel
