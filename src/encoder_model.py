@@ -9,7 +9,7 @@ from typing import Dict, List, Tuple, Any
 
 from tqdm import tqdm
 from torch.utils.data import DataLoader
-from mteb.encoder_interfaces import Encoder
+from mteb.models.models_protocols import EncoderProtocol
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 
@@ -35,7 +35,7 @@ def get_position_ids(input_ids: Tensor, mode: str = "original", max_original_pos
     
     return position_ids
 
-class RetrievalModel(Encoder):
+class RetrievalModel(EncoderProtocol):
     def __init__(self, args):
         self.args = args
         self.model_name_or_path = args.model_name_or_path
