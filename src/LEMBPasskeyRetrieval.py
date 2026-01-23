@@ -4,6 +4,7 @@ from mteb.abstasks.retrieval import AbsTaskRetrieval
 
 class LEMBPasskeyRetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
+
     metadata = TaskMetadata(
         name="LEMBPasskeyRetrieval",
         dataset={
@@ -27,29 +28,40 @@ class LEMBPasskeyRetrieval(AbsTaskRetrieval):
         sample_creation="found",
         bibtex_citation=None,
     )
-    def load_data(self, **kwargs):
+
+    def __init__(self, context_length=None, **kwargs):
+        super().__init__(**kwargs)
+        self._context_length = context_length
+
+    def load_data(self, num_proc=1, **kwargs):
         if self.data_loaded:
             return
-        if "context_length" not in kwargs:
+
+        # Use stored context_length or get from kwargs if provided
+        context_length = kwargs.get("context_length", self._context_length)
+        if context_length is None:
             raise ValueError("Need to specify context_length")
-        context_length = kwargs["context_length"]
+
         query_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
             "queries"
-        ]  # dict_keys(['qid', 'text'])
+        ]
         query_list = query_list.filter(lambda x: x["context_length"] == context_length)
         queries = {row["qid"]: row["text"] for row in query_list}
+
         corpus_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
             "corpus"
-        ]  # dict_keys(['doc_id', 'text'])
+        ]
         corpus_list = corpus_list.filter(
             lambda x: x["context_length"] == context_length
         )
         corpus = {row["doc_id"]: {"text": row["text"]} for row in corpus_list}
+
         qrels_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
             "qrels"
-        ]  # dict_keys(['qid', 'doc_id'])
+        ]
         qrels_list = qrels_list.filter(lambda x: x["context_length"] == context_length)
         qrels = {row["qid"]: {row["doc_id"]: 1} for row in qrels_list}
+
         self.corpus = {self._EVAL_SPLIT: corpus}
         self.queries = {self._EVAL_SPLIT: queries}
         self.relevant_docs = {self._EVAL_SPLIT: qrels}

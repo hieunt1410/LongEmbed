@@ -54,7 +54,6 @@ def main():
     retrieval_task_list = []
     needle_passkey_task_list = []
     output_dict = dict()
-    needle_passkey_score_list = list()
 
     for task in [
         "LEMBSummScreenFDRetrieval",
@@ -71,11 +70,11 @@ def main():
 
     # evaluating needle and passkey retrieval tasks
     if needle_passkey_task_list:
-        context_length_list = list(args.window_length_list)
-        context_length_list.sort()
+        # Use the model's encode_max_length as the context length
+        context_length = model.encode_max_length
 
-        # Get task instances for needle and passkey tasks
-        tasks = [CUSTOM_TASKS[task_name]() for task_name in needle_passkey_task_list]
+        # Get task instances for needle and passkey tasks with context_length
+        tasks = [CUSTOM_TASKS[task_name](context_length=context_length) for task_name in needle_passkey_task_list]
         results = mteb.evaluate(
             model,
             tasks,
@@ -84,19 +83,13 @@ def main():
             encode_kwargs={"batch_size": args.batch_size},
         )
         for key, value in results.items():
-            needle_passkey_score_list = []
-            for ctx_len in context_length_list:
-                needle_passkey_score_list.append(
-                    [ctx_len, value[f"test_{ctx_len}"]["ndcg_at_1"]]
-                )
-            needle_passkey_score_list.append(
-                [
-                    "avg",
-                    sum([x[1] for x in needle_passkey_score_list])
-                    / len(context_length_list),
-                ]
-            )
-            output_dict[key] = {item[0]: item[1] for item in needle_passkey_score_list}
+            # Results are now indexed by split directly, not by context_length
+            split = "test"
+            if split in value:
+                output_dict[key] = {
+                    "ndcg@1": value[split]["ndcg_at_1"],
+                    "ndcg@10": value[split]["ndcg_at_10"],
+                }
 
     # evaluating retrieval tasks
     if retrieval_task_list:
