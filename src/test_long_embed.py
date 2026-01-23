@@ -4,18 +4,18 @@ import logging
 
 # Monkey-patch MTEB RetrievalEvaluator BEFORE importing MTEB
 # This adds k=50 to all metrics
-from mteb.evaluation.evaluators import RetrievalEvaluator
+import mteb.evaluation.evaluators
 
-_original_re_init = RetrievalEvaluator.__init__
-
-
-def _patched_re_init(
-    self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs
-):
-    _original_re_init(self, retriever=retriever, k_values=k_values, **kwargs)
+# _original_re_init = mteb.evaluation.evaluators.RetrievalEvaluator.__init__
 
 
-RetrievalEvaluator.__init__ = _patched_re_init
+# def _patched_re_init(
+#     self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs
+# ):
+#     _original_re_init(self, retriever=retriever, k_values=k_values, **kwargs)
+
+
+# mteb.evaluation.evaluators.RetrievalEvaluator.__init__ = _patched_re_init
 
 from mteb import MTEB
 
@@ -97,14 +97,12 @@ def main():
 
     # evaluating retrieval tasks
     if retrieval_task_list != []:
-        evaluation = MTEB(tasks=retrieval_task_list)
-        results = evaluation.run(
+        results = mteb.evaluate(
             model,
-            output_folder=mteb_output_dir,
-            overwrite_results=False,
-            batch_size=args.batch_size,
-            verbosity=0,
-            save_predictions=True,
+            tasks=retrieval_task_list,
+            overwrite_results="only-missing",
+            prediction_folder=mteb_output_dir,
+            encode_kwargs={"batch_size": args.batch_size}
         )
 
         for key, value in results.items():
