@@ -239,6 +239,19 @@ class RetrievalModel:
             revision=None,
             release_date=None,
             languages=None,
+            loader=None,
+            n_parameters=None,
+            memory_usage_mb=None,
+            max_tokens=self.encode_max_length,
+            embed_dim=self.encoder.config.hidden_size if hasattr(self.encoder.config, 'hidden_size') else None,
+            license=None,
+            open_weights=True,
+            public_training_code=None,
+            public_training_data=None,
+            framework=["PyTorch"],
+            similarity_fn_name="cosine" if self.l2_norm else None,
+            use_instructions=None,
+            training_datasets=None,
         )
 
     def encode(
