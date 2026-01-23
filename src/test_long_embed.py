@@ -79,11 +79,9 @@ def main():
         results = mteb.evaluate(
             model,
             tasks,
-            output_folder=mteb_output_dir,
+            prediction_folder=mteb_output_dir,
             overwrite_strategy="only-missing",
-            batch_size=args.batch_size,
-            verbosity=0,
-            save_predictions=True,
+            encode_kwargs={"batch_size": args.batch_size},
         )
         for key, value in results.items():
             needle_passkey_score_list = []
@@ -107,11 +105,9 @@ def main():
         results = mteb.evaluate(
             model,
             tasks,
-            output_folder=mteb_output_dir,
+            prediction_folder=mteb_output_dir,
             overwrite_strategy="only-missing",
-            batch_size=args.batch_size,
-            verbosity=0,
-            save_predictions=True,
+            encode_kwargs={"batch_size": args.batch_size},
         )
 
         for key, value in results.items():
