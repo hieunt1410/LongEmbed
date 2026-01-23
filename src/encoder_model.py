@@ -1,3 +1,4 @@
+from mteb import EncoderProtocol
 import math
 import os
 import torch
@@ -7,7 +8,6 @@ import numpy as np
 
 from typing import Dict, List, Tuple
 from tqdm import tqdm
-from mteb.evaluation.evaluators import DRESModel
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 
@@ -33,7 +33,7 @@ def get_position_ids(input_ids: Tensor, mode: str = "original", max_original_pos
     
     return position_ids
 
-class RetrievalModel(DRESModel):
+class RetrievalModel(EncoderProtocol):
     def __init__(self, args):
         self.args = args
         self.model_name_or_path = args.model_name_or_path
