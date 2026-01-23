@@ -1,3 +1,4 @@
+from datasets.formatting.torch_formatter import torch
 from typing import TYPE_CHECKING, Dict, List, Tuple
 from mteb.models.model_meta import ModelMeta
 from mteb.types import PromptType
@@ -51,6 +52,7 @@ class RetrievalModel:
         config = AutoConfig.from_pretrained(
             args.model_name_or_path, trust_remote_code=True
         )
+        config.output_hidden_states = True
         logger.info(
             f"Loading model: {args.model_name_or_path}, model max_position_embeddings: {config.max_position_embeddings}"
         )
@@ -210,11 +212,17 @@ class RetrievalModel:
 
             with torch.cuda.amp.autocast():
                 outputs = self.encoder(**batch_dict)
-                embeds = pool(
-                    outputs.last_hidden_state,
-                    batch_dict["attention_mask"],
-                    self.pool_type,
-                )
+                
+                # embeds = pool(
+                #     outputs.last_hidden_state,
+                #     batch_dict["attention_mask"],
+                #     self.pool_type,
+                # )
+
+                # Stack all hidden states: (num_layers, batch, seq, hidden)
+                all_hidden_states = torch.stack(outputs.hidden_states, dim=0)
+                # Average across layers (dim=0), then across tokens (dim=1)
+                embeds = all_hidden_states.mean(dim=0).mean(dim=1)
                 chunking_mode: str = os.getenv("CHUNKING_MODE")
                 if self.l2_norm and chunking_mode != "chunk":
                     embeds = F.normalize(embeds, p=2, dim=-1)
