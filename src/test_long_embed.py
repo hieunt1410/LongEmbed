@@ -37,9 +37,9 @@ def main():
     if args.pos_mode != "original":
         mteb_output_dir += f"_{args.pos_mode}"
     if args.use_self_extend:
-        mteb_output_dir += f"_se_{model.encode_max_length}"
+        mteb_output_dir += f"_se_{model.max_seq_length}"
     if args.rope_theta != 10000:
-        mteb_output_dir += f"_theta{args.rope_theta}_{model.encode_max_length}"
+        mteb_output_dir += f"_theta{args.rope_theta}_{model.max_seq_length}"
     if args.rotary_scaling_factor:
         mteb_output_dir += f"_rsf{args.rotary_scaling_factor}"
 
