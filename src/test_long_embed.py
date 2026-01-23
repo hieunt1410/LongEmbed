@@ -4,7 +4,7 @@ import logging
 
 # Monkey-patch MTEB RetrievalEvaluator BEFORE importing MTEB
 # This adds k=50 to all metrics
-import mteb.evaluation.evaluators
+# import mteb.evaluation.evaluators
 
 # _original_re_init = mteb.evaluation.evaluators.RetrievalEvaluator.__init__
 
@@ -16,8 +16,7 @@ import mteb.evaluation.evaluators
 
 
 # mteb.evaluation.evaluators.RetrievalEvaluator.__init__ = _patched_re_init
-
-from mteb import MTEB
+import mteb
 
 from utils import logger, get_args
 from encoder_model import RetrievalModel
@@ -71,7 +70,7 @@ def main():
         context_length_list = list(args.window_length_list)
         context_length_list.sort()
 
-        evaluation = MTEB(tasks=needle_passkey_task_list)
+        evaluation = mteb.get_tasks(tasks=needle_passkey_task_list)
         results = evaluation.run(
             model,
             output_folder=mteb_output_dir,
