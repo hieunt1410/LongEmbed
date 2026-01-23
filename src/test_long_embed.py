@@ -59,11 +59,11 @@ def main():
         "LEMBNarrativeQARetrieval",
     ]:
         if task in args.task_list:
-            retrieval_task_list.append(task)
+            retrieval_task_list.append(mteb.get_task(task))
 
     for task in ["LEMBNeedleRetrieval", "LEMBPasskeyRetrieval"]:
         if task in args.task_list:
-            needle_passkey_task_list.append(task)
+            needle_passkey_task_list.append(mteb.get_task(task))
 
     # evaluating needle and passkey retrieval tasks
     if needle_passkey_task_list != []:
