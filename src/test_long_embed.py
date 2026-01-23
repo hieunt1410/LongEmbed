@@ -82,13 +82,14 @@ def main():
             overwrite_strategy="only-missing",
             encode_kwargs={"batch_size": args.batch_size},
         )
-        for key, value in results.items():
-            # Results are now indexed by split directly, not by context_length
+        # MTEB v2 returns ModelResult object with task_results list
+        for task_result in results.task_results:
             split = "test"
-            if split in value:
-                output_dict[key] = {
-                    "ndcg@1": value[split]["ndcg_at_1"],
-                    "ndcg@10": value[split]["ndcg_at_10"],
+            if split in task_result.scores and task_result.scores[split]:
+                scores = task_result.scores[split][0]
+                output_dict[task_result.task_name] = {
+                    "ndcg@1": scores.get("ndcg_at_1"),
+                    "ndcg@10": scores.get("ndcg_at_10"),
                 }
 
     # evaluating retrieval tasks
@@ -103,12 +104,15 @@ def main():
             encode_kwargs={"batch_size": args.batch_size},
         )
 
-        for key, value in results.items():
-            split = "test" if "test" in value else "validation"
-            output_dict[key] = {
-                "ndcg@1": value[split]["ndcg_at_1"],
-                "ndcg@10": value[split]["ndcg_at_10"],
-            }
+        # MTEB v2 returns ModelResult object with task_results list
+        for task_result in results.task_results:
+            split = "test" if "test" in task_result.scores else "validation"
+            if split in task_result.scores and task_result.scores[split]:
+                scores = task_result.scores[split][0]
+                output_dict[task_result.task_name] = {
+                    "ndcg@1": scores.get("ndcg_at_1"),
+                    "ndcg@10": scores.get("ndcg_at_10"),
+                }
 
     logger.info(output_dict)
 
