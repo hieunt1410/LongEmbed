@@ -19,14 +19,13 @@ import logging
 import mteb
 
 from utils import logger, get_args
-from encoder_model import RetrievalModel
 
 logging.getLogger().setLevel(logging.INFO)
 
 
 def main():
     args = get_args()
-    model = RetrievalModel(args)
+    model = mteb.get_model(args.model_name_or_path)
 
     model_name = os.path.basename(os.path.normpath(args.model_name_or_path))
     mteb_output_dir = os.path.join(args.output_dir, model_name)
@@ -37,11 +36,11 @@ def main():
         mteb_output_dir += f"_{chunking_mode}-{chunk_max_len}"
     if args.pos_mode != "original":
         mteb_output_dir += f"_{args.pos_mode}"
-    if args.use_self_extend == True:
+    if args.use_self_extend:
         mteb_output_dir += f"_se_{model.encode_max_length}"
     if args.rope_theta != 10000:
         mteb_output_dir += f"_theta{args.rope_theta}_{model.encode_max_length}"
-    if args.rotary_scaling_factor != None:
+    if args.rotary_scaling_factor:
         mteb_output_dir += f"_rsf{args.rotary_scaling_factor}"
 
     os.makedirs(args.output_dir, exist_ok=True)
