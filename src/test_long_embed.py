@@ -70,14 +70,12 @@ def main():
         context_length_list = list(args.window_length_list)
         context_length_list.sort()
 
-        evaluation = mteb.get_tasks(tasks=needle_passkey_task_list)
-        results = evaluation.run(
+        results = mteb.evaluate(
             model,
-            output_folder=mteb_output_dir,
-            overwrite_results=False,
-            batch_size=args.batch_size,
-            verbosity=0,
-            save_predictions=True,
+            tasks=needle_passkey_task_list,
+            overwrite_results="only-missing",
+            prediction_folder=mteb_output_dir,
+            encode_kwargs={"batch_size": args.batch_size}
         )
         for key, value in results.items():
             needle_passkey_score_list = []
