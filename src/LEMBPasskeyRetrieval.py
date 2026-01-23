@@ -42,13 +42,13 @@ class LEMBPasskeyRetrieval(AbsTaskRetrieval):
         if context_length is None:
             raise ValueError("Need to specify context_length")
 
-        query_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
+        query_list = datasets.load_dataset(**self.metadata["dataset"])[
             "queries"
         ]
         query_list = query_list.filter(lambda x: x["context_length"] == context_length)
         queries = {row["qid"]: row["text"] for row in query_list}
 
-        corpus_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
+        corpus_list = datasets.load_dataset(**self.metadata["dataset"])[
             "corpus"
         ]
         corpus_list = corpus_list.filter(
@@ -56,7 +56,7 @@ class LEMBPasskeyRetrieval(AbsTaskRetrieval):
         )
         corpus = {row["doc_id"]: {"text": row["text"]} for row in corpus_list}
 
-        qrels_list = datasets.load_dataset(**self.metadata_dict["dataset"])[
+        qrels_list = datasets.load_dataset(**self.metadata["dataset"])[
             "qrels"
         ]
         qrels_list = qrels_list.filter(lambda x: x["context_length"] == context_length)
