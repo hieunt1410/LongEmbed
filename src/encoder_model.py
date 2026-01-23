@@ -304,11 +304,11 @@ class RetrievalModel:
 
         # Route to appropriate encoding based on prompt_type
         if prompt_type == PromptType.query:
-            return self.encode_queries(all_texts, batch_size=batch_size, **kwargs)
+            return self.encode_queries(all_texts, **kwargs)
         else:
             # For document/passage encoding, create corpus-like structure
             corpus = [{"text": text} for text in all_texts]
-            return self.encode_corpus(corpus, batch_size=batch_size, **kwargs)
+            return self.encode_corpus(corpus, **kwargs)
 
     def similarity(
         self, embeddings1: np.ndarray, embeddings2: np.ndarray
