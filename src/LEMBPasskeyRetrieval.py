@@ -1,8 +1,7 @@
 import datasets
 
-from mteb.abstasks.TaskMetadata import TaskMetadata
-
-from ....abstasks.AbsTaskRetrieval import AbsTaskRetrieval
+from mteb.abstasks.task_metadata import TaskMetadata
+from mteb.abstasks.retrieval import AbsTaskRetrieval
 
 
 class LEMBPasskeyRetrieval(AbsTaskRetrieval):

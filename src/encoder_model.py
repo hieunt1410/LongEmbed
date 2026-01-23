@@ -5,9 +5,11 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
-from typing import Dict, List, Tuple
+from typing import Dict, List, Tuple, Any
+
 from tqdm import tqdm
-from mteb.evaluation.evaluators import DRESModel
+from torch.utils.data import DataLoader
+from mteb.encoder_interfaces import Encoder
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer, AutoConfig
 
@@ -33,7 +35,7 @@ def get_position_ids(input_ids: Tensor, mode: str = "original", max_original_pos
     
     return position_ids
 
-class RetrievalModel(DRESModel):
+class RetrievalModel(Encoder):
     def __init__(self, args):
         self.args = args
         self.model_name_or_path = args.model_name_or_path
@@ -95,8 +97,68 @@ class RetrievalModel(DRESModel):
             self.tokenizer.padding_side = 'right'
 
 
-    def encode_queries(self, queries: List[str], batch_size: int = 64, **kwargs) -> np.ndarray:
+    def encode(self, input: DataLoader[Dict[str, Any]], **kwargs) -> np.ndarray:
+        """Encode inputs using MTEB v2 format.
 
+        Args:
+            input: DataLoader yielding batches with keys like 'text', 'title', etc.
+            **kwargs: Additional arguments including task-specific info
+
+        Returns:
+            np.ndarray: Encoded embeddings
+        """
+        all_embeddings = []
+
+        for batch in input:
+            # Check if this is corpus input (has 'title' key) or query input
+            if 'title' in batch or all(isinstance(item, dict) and 'title' in item for item in batch):
+                # Corpus encoding - combine title and text
+                texts = []
+                for item in batch:
+                    if isinstance(item, dict):
+                        title = item.get('title', '')
+                        text = item.get('text', '')
+                        combined = '{} {}'.format(title, text).strip()
+                        texts.append(combined)
+                    else:
+                        texts.append(str(item))
+
+                # Apply passage prefix if needed
+                if self.prefix_type == 'query_or_passage':
+                    texts = ['passage: {}'.format(t) for t in texts]
+                elif self.prefix_type == 'nomic':
+                    texts = ['search_document: {}'.format(t) for t in texts]
+
+                encoded_embeds = self._encode_texts(texts, batch_size=len(texts))
+
+            else:
+                # Query encoding
+                texts = []
+                for item in batch:
+                    if isinstance(item, dict):
+                        texts.append(item.get('text', str(item)))
+                    else:
+                        texts.append(str(item))
+
+                # Apply query prefix if needed
+                if self.prefix_type == 'query_or_passage':
+                    texts = [f'query: {t}' for t in texts]
+                else:
+                    texts = [self.prompt + t for t in texts]
+
+                encoded_embeds = self._encode_texts(texts, batch_size=len(texts))
+
+            all_embeddings.append(encoded_embeds)
+
+        if all_embeddings:
+            result = np.concatenate(all_embeddings, axis=0)
+            if self.l2_norm:
+                result = result / np.linalg.norm(result, axis=1, keepdims=True)
+            return result
+        return np.array([])
+
+    def encode_queries(self, queries: List[str], batch_size: int = 64, **kwargs) -> np.ndarray:
+        """Legacy method for backward compatibility. Use encode() instead."""
         # in retrieval settings, queries are usually short, so we don't need to chunk them
         batch_size = max(batch_size, 64)
         if self.prefix_type == 'query_or_passage':
@@ -174,6 +236,10 @@ class RetrievalModel(DRESModel):
             exit(1)
 
         return encoded_embeds
+
+    def _encode_texts(self, texts: List[str], batch_size: int) -> np.ndarray:
+        """Helper method to encode a list of texts, used by the new encode() method."""
+        return self._do_encode(texts, batch_size)
 
     def set_prompt(self, prompt: str):
         self.prompt = prompt

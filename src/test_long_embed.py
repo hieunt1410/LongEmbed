@@ -2,25 +2,28 @@ import os
 import json
 import logging
 
-# Monkey-patch MTEB RetrievalEvaluator BEFORE importing MTEB
-# This adds k=50 to all metrics
-from mteb.evaluation.evaluators import RetrievalEvaluator
-
-_original_re_init = RetrievalEvaluator.__init__
-
-
-def _patched_re_init(
-    self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs
-):
-    _original_re_init(self, retriever=retriever, k_values=k_values, **kwargs)
-
-
-RetrievalEvaluator.__init__ = _patched_re_init
-
-from mteb import MTEB
+import mteb
 
 from utils import logger, get_args
 from encoder_model import RetrievalModel
+
+# Import custom LEMB tasks
+from LEMBNeedleRetrieval import LEMBNeedleRetrieval
+from LEMBPasskeyRetrieval import LEMBPasskeyRetrieval
+from LEMBNarrativeQARetrieval import LEMBNarrativeQARetrieval
+from LEMBQMSumRetrieval import LEMBQMSumRetrieval
+from LEMBSummScreenFDRetrieval import LEMBSummScreenFDRetrieval
+from LEMBWikimQARetrieval import LEMBWikimQARetrieval
+
+# Map task names to task classes for MTEB v2
+CUSTOM_TASKS = {
+    "LEMBNeedleRetrieval": LEMBNeedleRetrieval,
+    "LEMBPasskeyRetrieval": LEMBPasskeyRetrieval,
+    "LEMBNarrativeQARetrieval": LEMBNarrativeQARetrieval,
+    "LEMBQMSumRetrieval": LEMBQMSumRetrieval,
+    "LEMBSummScreenFDRetrieval": LEMBSummScreenFDRetrieval,
+    "LEMBWikimQARetrieval": LEMBWikimQARetrieval,
+}
 
 logging.getLogger().setLevel(logging.INFO)
 
@@ -71,11 +74,13 @@ def main():
         context_length_list = list(args.window_length_list)
         context_length_list.sort()
 
-        evaluation = MTEB(tasks=needle_passkey_task_list)
-        results = evaluation.run(
+        # Get task instances for needle and passkey tasks
+        tasks = [CUSTOM_TASKS[task_name]() for task_name in needle_passkey_task_list]
+        results = mteb.evaluate(
             model,
+            tasks,
             output_folder=mteb_output_dir,
-            overwrite_results=False,
+            overwrite_strategy="only-missing",
             batch_size=args.batch_size,
             verbosity=0,
             save_predictions=True,
@@ -97,11 +102,13 @@ def main():
 
     # evaluating retrieval tasks
     if retrieval_task_list != []:
-        evaluation = MTEB(tasks=retrieval_task_list)
-        results = evaluation.run(
+        # Get task instances for retrieval tasks
+        tasks = [CUSTOM_TASKS[task_name]() for task_name in retrieval_task_list]
+        results = mteb.evaluate(
             model,
+            tasks,
             output_folder=mteb_output_dir,
-            overwrite_results=False,
+            overwrite_strategy="only-missing",
             batch_size=args.batch_size,
             verbosity=0,
             save_predictions=True,
