@@ -73,7 +73,7 @@ def main():
         results = mteb.evaluate(
             model,
             tasks=needle_passkey_task_list,
-            overwrite_results="only-missing",
+            overwrite_strategy="only-missing",
             prediction_folder=mteb_output_dir,
             encode_kwargs={"batch_size": args.batch_size}
         )
@@ -97,7 +97,7 @@ def main():
         results = mteb.evaluate(
             model,
             tasks=retrieval_task_list,
-            overwrite_results="only-missing",
+            overwrite_strategy="only-missing",
             prediction_folder=mteb_output_dir,
             encode_kwargs={"batch_size": args.batch_size}
         )
