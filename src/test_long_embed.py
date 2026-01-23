@@ -8,8 +8,12 @@ from mteb.evaluation.evaluators import RetrievalEvaluator
 
 _original_re_init = RetrievalEvaluator.__init__
 
-def _patched_re_init(self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs):
+
+def _patched_re_init(
+    self, retriever=None, k_values=[1, 3, 5, 10, 20, 50, 100, 1000], **kwargs
+):
     _original_re_init(self, retriever=retriever, k_values=k_values, **kwargs)
+
 
 RetrievalEvaluator.__init__ = _patched_re_init
 
@@ -22,7 +26,6 @@ logging.getLogger().setLevel(logging.INFO)
 
 
 def main():
-
     args = get_args()
     model = RetrievalModel(args)
 
@@ -65,7 +68,6 @@ def main():
 
     # evaluating needle and passkey retrieval tasks
     if needle_passkey_task_list != []:
-
         context_length_list = list(args.window_length_list)
         context_length_list.sort()
 
@@ -76,6 +78,7 @@ def main():
             overwrite_results=False,
             batch_size=args.batch_size,
             verbosity=0,
+            save_predictions=True,
         )
         for key, value in results.items():
             needle_passkey_score_list = []
@@ -94,7 +97,6 @@ def main():
 
     # evaluating retrieval tasks
     if retrieval_task_list != []:
-
         evaluation = MTEB(tasks=retrieval_task_list)
         results = evaluation.run(
             model,
@@ -102,6 +104,7 @@ def main():
             overwrite_results=False,
             batch_size=args.batch_size,
             verbosity=0,
+            save_predictions=True,
         )
 
         for key, value in results.items():
