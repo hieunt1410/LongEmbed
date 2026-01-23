@@ -1,6 +1,7 @@
 import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
+
 class LEMBQMSumRetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
     metadata = TaskMetadata(
@@ -13,19 +14,17 @@ class LEMBQMSumRetrieval(AbsTaskRetrieval):
         reference="https://huggingface.co/datasets/dwzhu/LongEmbed",
         description=("qmsum subset of dwzhu/LongEmbed dataset."),
         type="Retrieval",
-        category="s2p",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=("1950-01-01", "2021-12-31"),
-        form=["written"],
         domains=["Spoken"],
         task_subtypes=["Article retrieval"],
-        license="Not specified",
-        socioeconomic_status="medium",
+        license="not specified",
         annotations_creators="derived",
         dialect=[],
-        text_creation="found",
+        sample_creation="found",
         bibtex_citation="""
             @inproceedings{zhong-etal-2021-qmsum,
             title = "{QMS}um: A New Benchmark for Query-based Multi-domain Meeting Summarization",
@@ -60,8 +59,6 @@ class LEMBQMSumRetrieval(AbsTaskRetrieval):
             abstract = "",
             }
         """,
-        n_samples={_EVAL_SPLIT: 1724},
-        avg_character_length={_EVAL_SPLIT: 56136.4},
     )
     def load_data(self, **kwargs):
         if self.data_loaded:

@@ -1,6 +1,7 @@
 import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
+
 class LEMBNeedleRetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
     metadata = TaskMetadata(
@@ -13,22 +14,18 @@ class LEMBNeedleRetrieval(AbsTaskRetrieval):
         reference="https://huggingface.co/datasets/dwzhu/LongEmbed",
         description=("needle subset of dwzhu/LongEmbed dataset."),
         type="Retrieval",
-        category="s2p",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=("2000-01-01", "2023-12-31"),
-        form=["written"],
         domains=["Academic", "Blog"],
         task_subtypes=["Article retrieval"],
-        license="Not specified",
-        socioeconomic_status="high",
+        license="not specified",
         annotations_creators="derived",
         dialect=[],
-        text_creation="found",
+        sample_creation="found",
         bibtex_citation=None,
-        n_samples={_EVAL_SPLIT: 1200},
-        avg_character_length={_EVAL_SPLIT: 35305.2},
     )
     def load_data(self, **kwargs):
         if self.data_loaded:

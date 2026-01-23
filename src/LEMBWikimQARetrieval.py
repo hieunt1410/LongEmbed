@@ -1,6 +1,7 @@
 import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
+
 class LEMBWikimQARetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
     metadata = TaskMetadata(
@@ -13,19 +14,17 @@ class LEMBWikimQARetrieval(AbsTaskRetrieval):
         reference="https://huggingface.co/datasets/dwzhu/LongEmbed",
         description=("2wikimqa subset of dwzhu/LongEmbed dataset."),
         type="Retrieval",
-        category="s2p",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=("1950-01-01", "2019-12-31"),
-        form=["written"],
         domains=["Encyclopaedic"],
         task_subtypes=["Article retrieval"],
-        license="Not specified",
-        socioeconomic_status="medium",
+        license="not specified",
         annotations_creators="derived",
         dialect=[],
-        text_creation="found",
+        sample_creation="found",
         bibtex_citation="""
             @inproceedings{ho2020constructing,
                 title={Constructing A Multi-hop QA Dataset for Comprehensive Evaluation of Reasoning Steps},
@@ -35,8 +34,6 @@ class LEMBWikimQARetrieval(AbsTaskRetrieval):
                 year={2020}
             }
         """,
-        n_samples={_EVAL_SPLIT: 500},
-        avg_character_length={_EVAL_SPLIT: 37513},
     )
     def load_data(self, **kwargs):
         if self.data_loaded:
@@ -57,4 +54,3 @@ class LEMBWikimQARetrieval(AbsTaskRetrieval):
         self.queries = {self._EVAL_SPLIT: queries}
         self.relevant_docs = {self._EVAL_SPLIT: qrels}
         self.data_loaded = True
-        self.calculate_metadata_metrics()

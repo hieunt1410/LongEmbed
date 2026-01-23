@@ -1,6 +1,7 @@
 import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
+
 class LEMBSummScreenFDRetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "validation"
     metadata = TaskMetadata(
@@ -13,19 +14,17 @@ class LEMBSummScreenFDRetrieval(AbsTaskRetrieval):
         reference="https://huggingface.co/datasets/dwzhu/LongEmbed",
         description=("summ_screen_fd subset of dwzhu/LongEmbed dataset."),
         type="Retrieval",
-        category="s2p",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=("2000-01-01", "2021-12-31"),
-        form=["written"],
         domains=["Spoken"],
         task_subtypes=["Article retrieval"],
-        license="Not specified",
-        socioeconomic_status="medium",
+        license="not specified",
         annotations_creators="derived",
         dialect=[],
-        text_creation="found",
+        sample_creation="found",
         bibtex_citation="""
             @inproceedings{chen-etal-2022-summscreen,
                 title = "{S}umm{S}creen: A Dataset for Abstractive Screenplay Summarization",
@@ -47,8 +46,6 @@ class LEMBSummScreenFDRetrieval(AbsTaskRetrieval):
                 abstract = "",
             }
         """,
-        n_samples={_EVAL_SPLIT: 672},
-        avg_character_length={_EVAL_SPLIT: 31445.8},
     )
     def load_data(self, **kwargs):
         if self.data_loaded:

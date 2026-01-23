@@ -1,6 +1,7 @@
 import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
+
 class LEMBNarrativeQARetrieval(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
     metadata = TaskMetadata(
@@ -13,19 +14,17 @@ class LEMBNarrativeQARetrieval(AbsTaskRetrieval):
         reference="https://huggingface.co/datasets/dwzhu/LongEmbed",
         description=("narrativeqa subset of dwzhu/LongEmbed dataset."),
         type="Retrieval",
-        category="s2p",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
         date=("1000-01-01", "2017-12-31"),
-        form=["written"],
         domains=["Fiction", "Non-fiction"],
         task_subtypes=["Article retrieval"],
-        license="Not specified",
-        socioeconomic_status="medium",
+        license="not specified",
         annotations_creators="derived",
         dialect=[],
-        text_creation="found",
+        sample_creation="found",
         bibtex_citation="""
             @article{kocisky-etal-2018-narrativeqa,
             title = "The {N}arrative{QA} Reading Comprehension Challenge",
@@ -51,8 +50,6 @@ class LEMBNarrativeQARetrieval(AbsTaskRetrieval):
             abstract = "",
         }
         """,
-        n_samples={_EVAL_SPLIT: 10804},
-        avg_character_length={_EVAL_SPLIT: 326399.3},
     )
     def load_data(self, **kwargs):
         if self.data_loaded:
