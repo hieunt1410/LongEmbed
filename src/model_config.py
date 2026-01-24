@@ -8,7 +8,7 @@ MODEL_NAME_TO_POOL_TYPE = {
     'multilingual-e5-small': 'avg',
     'multilingual-e5-base': 'avg',
     'multilingual-e5-large': 'avg',
-    'e5-mistral-7b-instruct': 'avg',
+    'e5-mistral-7b-instruct': 'last',
     'bge-large-en-v1.5': 'cls',
     'bge-base-en-v1.5': 'cls',
     'bge-m3': 'cls',

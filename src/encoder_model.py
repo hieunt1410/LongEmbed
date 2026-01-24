@@ -213,16 +213,16 @@ class RetrievalModel:
             with torch.cuda.amp.autocast():
                 outputs = self.encoder(**batch_dict)
                 
-                # embeds = pool(
-                #     outputs.last_hidden_state,
-                #     batch_dict["attention_mask"],
-                #     self.pool_type,
-                # )
+                embeds = pool(
+                    outputs.last_hidden_state,
+                    batch_dict["attention_mask"],
+                    self.pool_type,
+                )
 
-                # Stack all hidden states: (num_layers, batch, seq, hidden)
-                all_hidden_states = torch.stack(outputs.hidden_states, dim=0)
-                # Average across layers (dim=0), then across tokens (dim=1)
-                embeds = all_hidden_states.mean(dim=0).mean(dim=1)
+                # # Stack all hidden states: (num_layers, batch, seq, hidden)
+                # all_hidden_states = torch.stack(outputs.hidden_states, dim=0)
+                # # Average across layers (dim=0), then across tokens (dim=1)
+                # embeds = all_hidden_states.mean(dim=0).mean(dim=1)
                 chunking_mode: str = os.getenv("CHUNKING_MODE")
                 if self.l2_norm and chunking_mode != "chunk":
                     embeds = F.normalize(embeds, p=2, dim=-1)
