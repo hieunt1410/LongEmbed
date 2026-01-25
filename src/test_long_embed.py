@@ -60,6 +60,7 @@ def main():
         "LEMBQMSumRetrieval",
         "LEMBWikimQARetrieval",
         "LEMBNarrativeQARetrieval",
+        "coliee_task1"
     ]:
         if task in args.task_list:
             retrieval_task_list.append(task)
