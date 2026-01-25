@@ -1,14 +1,37 @@
-import datasets
+import json
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
-import json
+
 
 def load_json(file_path):
     with open(file_path, "r") as f:
         return json.load(f)
 
+
 class ColieeTask1(AbsTaskRetrieval):
     _EVAL_SPLIT = "test"
+    metadata = TaskMetadata(
+        name="coliee_task1",
+        dataset={
+            "path": "local",
+            "revision": "1.0.0",
+        },
+        reference="https://sites.ualberta.ca/~rabelo/COLIEE2025/",
+        description="COLIEE Task 1: Legal Case Retrieval - Given a query case, retrieve relevant cases from the corpus.",
+        type="Retrieval",
+        category="s2s",
+        eval_splits=[_EVAL_SPLIT],
+        eval_langs=["eng-Latn"],
+        main_score="ndcg_at_10",
+        date=("2020-01-01", "2025-12-31"),
+        domains=["Legal"],
+        task_subtypes=["Article retrieval"],
+        license="not specified",
+        annotations_creators="expert-annotated",
+        dialect=[],
+        sample_creation="found",
+        bibtex_citation="",
+    )
 
     def load_data(self, **kwargs):
         if self.data_loaded:
