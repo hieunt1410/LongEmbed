@@ -36,9 +36,16 @@ class ColieeTask1(AbsTaskRetrieval):
     def load_data(self, **kwargs):
         if self.data_loaded:
             return
-        queries = load_json("datasets/coliee_task1/task1_test_queries_2025.json")
-        corpus = load_json("datasets/coliee_task1/task1_test_corpus_2025.json")
+
+        query_list = load_json("datasets/coliee_task1/task1_test_queries_2025.json")
+        corpus_list = load_json("datasets/coliee_task1/task1_test_corpus_2025.json")
+
+        # Convert list format to MTEB expected dict format
+        # queries: {qid: text}, corpus: {doc_id: {"text": text}}
+        queries = {row["qid"]: row["query"] for row in query_list}
+        corpus = {row["doc_id"]: {"text": row["text"]} for row in corpus_list}
         qrels = {}
+
         self.corpus = {self._EVAL_SPLIT: corpus}
         self.queries = {self._EVAL_SPLIT: queries}
         self.relevant_docs = {self._EVAL_SPLIT: qrels}
