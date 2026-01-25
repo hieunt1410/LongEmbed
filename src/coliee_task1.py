@@ -1,5 +1,4 @@
 import json
-import datasets
 from mteb.abstasks.task_metadata import TaskMetadata
 from mteb.abstasks.retrieval import AbsTaskRetrieval
 
@@ -41,19 +40,11 @@ class ColieeTask1(AbsTaskRetrieval):
         query_list = load_json("datasets/coliee_task1/task1_test_queries_2025.json")
         corpus_list = load_json("datasets/coliee_task1/task1_test_corpus_2025.json")
 
-        # Convert to HuggingFace Dataset format
-        queries = datasets.Dataset.from_dict({
-            "qid": [row["qid"] for row in query_list],
-            "text": [row["query"] for row in query_list],
-        })
-        corpus = datasets.Dataset.from_dict({
-            "doc_id": [row["doc_id"] for row in corpus_list],
-            "text": [row["text"] for row in corpus_list],
-        })
-        qrels = datasets.Dataset.from_dict({
-            "qid": [],
-            "doc_id": [],
-        })
+        # Convert to MTEB v1 dict format (will be auto-converted to v2)
+        # queries: {qid: text}, corpus: {doc_id: {"text": text}}, qrels: {qid: {doc_id: score}}
+        queries = {row["qid"]: row["query"] for row in query_list}
+        corpus = {row["doc_id"]: {"text": row["text"]} for row in corpus_list}
+        qrels = {}  # Empty for test set without labels
 
         self.corpus = {self._EVAL_SPLIT: corpus}
         self.queries = {self._EVAL_SPLIT: queries}
