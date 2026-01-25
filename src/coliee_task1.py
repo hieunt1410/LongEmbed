@@ -19,7 +19,7 @@ class ColieeTask1(AbsTaskRetrieval):
         reference="https://sites.ualberta.ca/~rabelo/COLIEE2025/",
         description="COLIEE Task 1: Legal Case Retrieval - Given a query case, retrieve relevant cases from the corpus.",
         type="Retrieval",
-        category="s2s",
+        category="t2t",
         eval_splits=[_EVAL_SPLIT],
         eval_langs=["eng-Latn"],
         main_score="ndcg_at_10",
