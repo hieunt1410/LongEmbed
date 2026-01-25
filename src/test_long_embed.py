@@ -14,6 +14,7 @@ from LEMBNarrativeQARetrieval import LEMBNarrativeQARetrieval
 from LEMBQMSumRetrieval import LEMBQMSumRetrieval
 from LEMBSummScreenFDRetrieval import LEMBSummScreenFDRetrieval
 from LEMBWikimQARetrieval import LEMBWikimQARetrieval
+from coliee_task1 import ColieeTask1
 
 # Map task names to task classes for MTEB v2
 CUSTOM_TASKS = {
@@ -23,6 +24,7 @@ CUSTOM_TASKS = {
     "LEMBQMSumRetrieval": LEMBQMSumRetrieval,
     "LEMBSummScreenFDRetrieval": LEMBSummScreenFDRetrieval,
     "LEMBWikimQARetrieval": LEMBWikimQARetrieval,
+    "coliee_task1": ColieeTask1,
 }
 
 logging.getLogger().setLevel(logging.INFO)
