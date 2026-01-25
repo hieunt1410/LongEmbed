@@ -41,10 +41,14 @@ class ColieeTask1(AbsTaskRetrieval):
         corpus_list = load_json("datasets/coliee_task1/task1_test_corpus_2025.json")
 
         # Convert to MTEB v1 dict format (will be auto-converted to v2)
-        # queries: {qid: text}, corpus: {doc_id: {"text": text}}, qrels: {qid: {doc_id: score}}
+        # queries: {qid: text}, corpus: {doc_id: {"_id": doc_id, "text": text}}, qrels: {qid: {doc_id: score}}
         queries = {row["qid"]: row["query"] for row in query_list}
-        corpus = {row["doc_id"]: {"text": row["text"]} for row in corpus_list}
-        qrels = {}  # Empty for test set without labels
+        corpus = {row["doc_id"]: {"_id": row["doc_id"], "text": row["text"]} for row in corpus_list}
+
+        # Create dummy qrels for test set (needed for MTEB to process queries)
+        # Each query gets a dummy relevance to the first corpus doc
+        first_doc_id = corpus_list[0]["doc_id"] if corpus_list else None
+        qrels = {row["qid"]: {first_doc_id: 1} for row in query_list} if first_doc_id else {}
 
         self.corpus = {self._EVAL_SPLIT: corpus}
         self.queries = {self._EVAL_SPLIT: queries}
