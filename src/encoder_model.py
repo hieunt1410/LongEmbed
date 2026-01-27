@@ -210,23 +210,20 @@ class RetrievalModel:
                 )
             batch_dict = move_to_cuda(batch_dict)
 
-            with torch.cuda.amp.autocast():
-                outputs = self.encoder(**batch_dict)
-                
-                embeds = pool(
-                    outputs.last_hidden_state,
-                    batch_dict["attention_mask"],
-                    self.pool_type,
-                )
+            outputs = self.encoder(**batch_dict)
 
-                # # Stack all hidden states: (num_layers, batch, seq, hidden)
-                # all_hidden_states = torch.stack(outputs.hidden_states, dim=0)
-                # # Average across layers (dim=0), then across tokens (dim=1)
-                # embeds = all_hidden_states.mean(dim=0).mean(dim=1)
-                chunking_mode: str = os.getenv("CHUNKING_MODE")
-                if self.l2_norm and chunking_mode != "chunk":
-                    embeds = F.normalize(embeds, p=2, dim=-1)
-                encoded_embeds.append(embeds.cpu().numpy())
+            embeds = pool(
+                outputs.last_hidden_state,
+                batch_dict["attention_mask"],
+                self.pool_type,
+            )
+
+            chunking_mode: str = os.getenv("CHUNKING_MODE")
+            if self.l2_norm and chunking_mode != "chunk":
+                embeds = F.normalize(embeds, p=2, dim=-1)
+            encoded_embeds.append(embeds.cpu().numpy())
+            del outputs, embeds, batch_dict
+            torch.cuda.empty_cache()
 
         encoded_embeds = np.concatenate(encoded_embeds, axis=0)
         # check nan
