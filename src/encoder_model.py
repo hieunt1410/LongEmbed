@@ -52,7 +52,7 @@ class RetrievalModel:
         config = AutoConfig.from_pretrained(
             args.model_name_or_path, trust_remote_code=True
         )
-        config.output_hidden_states = True
+        config.output_hidden_states = False
         logger.info(
             f"Loading model: {args.model_name_or_path}, model max_position_embeddings: {config.max_position_embeddings}"
         )
