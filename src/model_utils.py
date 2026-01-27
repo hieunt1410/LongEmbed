@@ -181,9 +181,13 @@ def replace_with_xformers():
 def use_self_extend(args, loaded_model):
     import self_extend_patch as SE
     from functools import partial
-    e5rope_self_extend_forward = partial(SE.e5rope_self_extend_forward, group_size_1=args.group_size_1, group_size_2=args.group_size_2)
-    modify_method_of_instance(loaded_model, "E5RopeSelfAttention", "forward", e5rope_self_extend_forward)
-    logger.info('Patching self-extend for e5rope')
+    mistral_self_extend_forward = partial(SE.mistral_flash_self_extend_forward, group_size_1=args.group_size_1, group_size_2=args.group_size_2, scale_base=4096)
+    # e5rope_self_extend_forward = partial(SE.e5rope_self_extend_forward, group_size_1=args.group_size_1, group_size_2=args.group_size_2)
+    modify_method_of_instance(loaded_model, "MistralFlashAttention2", "forward", mistral_self_extend_forward)
+    modify_method_of_instance(loaded_model, "MistralFlashAttention2", "_flash_attention_forward", SE.flash_attention2_forward_with_window_size)
+
+    # modify_method_of_instance(loaded_model, "E5RopeSelfAttention", "forward", e5rope_self_extend_forward)
+    logger.info('Patching self-extend for mistral and e5rope')
 
 
 class ReplicateOnceDataParallel(DataParallel):
