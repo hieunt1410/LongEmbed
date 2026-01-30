@@ -92,7 +92,7 @@ class RetrievalModel:
 
         if args.plan == "tp":
             placeholder_token= "<PST>"
-            self.tokenizer.add_special_tokens([placeholder_token])
+            self.tokenizer.add_tokens([placeholder_token])
             self.encoder.resize_token_embeddings(len(self.tokenizer))
 
             embedding_layer = self.encoder.get_input_embeddings()
