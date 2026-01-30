@@ -241,7 +241,7 @@ class MistralModel(MistralPreTrainedModel):
         self.post_init()
         self.plan = "tp"
         self.tp_starting_index = 1
-        self.tp_exiting_index = 3
+        self.tp_exiting_index = 7
 
     def get_input_embeddings(self):
         return self.embed_tokens
