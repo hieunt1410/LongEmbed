@@ -213,9 +213,9 @@ def get_task_def_by_task_name_and_type(task_name: str, task_type: str) -> str:
             "HotpotQA": "Given a multi-hop question, retrieve documents that can help answer the question",
             "MSMARCO": "Given a web search query, retrieve relevant passages that answer the query",
             "MSMARCODOC": "Given a web search query, retrieve relevant passages that answer the query",
-            "Needles": "Given a web search query, retrieve relevant passages that answer the query",
+            "LEMBNeedleRetrieval": "Given a web search query, retrieve relevant passages that answer the query",
             "NFCorpus": "Given a question, retrieve relevant documents that best answer the question",
-            "NQ": "Given a question, retrieve Wikipedia passages that answer the question",
+            "LEMBNarrativeQARetrieval": "Given a question, retrieve Wikipedia passages that answer the question",
             "QuoraRetrieval": "Given a question, retrieve questions that are semantically equivalent to the given question",
             "SCIDOCS": "Given a scientific paper title, retrieve paper abstracts that are cited by the given paper",
             "SciFact": "Given a scientific claim, retrieve documents that support or refute the claim",
@@ -230,6 +230,8 @@ def get_task_def_by_task_name_and_type(task_name: str, task_type: str) -> str:
             "EcomRetrieval": "Given a user query from an e-commerce website, retrieve description sentences of relevant products",
             "MedicalRetrieval": "Given a medical question, retrieve user replies that best answer the question",
             "VideoRetrieval": "Given a video search query, retrieve the titles of relevant videos",
+
+            "coliee_task1": "Given a legal question, retrieve relevant legal documents that answer the question <PST>"
         }
 
         # add lower case keys to match some beir names

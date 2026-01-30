@@ -90,6 +90,25 @@ class RetrievalModel:
         else:
             self.encode_max_length = self.encoder.config.max_position_embeddings
 
+        if args.plan == "tp":
+            placeholder_token= "<PST>"
+            self.tokenizer.add_special_tokens([placeholder_token])
+            self.encoder.resize_token_embeddings(len(self.tokenizer))
+
+            embedding_layer = self.encoder.get_input_embeddings()
+            embedding_layer.weight.requires_grad_(True)
+            placeholder_token_id = self.tokenizer.convert_tokens_to_ids(placeholder_token)
+
+            num_dim = embedding_layer.weight.shape[1]
+            device = embedding_layer.weight.device
+            with torch.no_grad():
+                embedding_layer.weight[placeholder_token_id] = torch.randn(
+                    num_dim, device=device
+                )
+            embedding_layer.weight.requires_grad_(True)
+
+        self.encoder.eval()
+
         self.pos_mode = args.pos_mode
         self.prompt = args.prompt
         self.prefix_type = args.prefix_type
@@ -162,7 +181,7 @@ class RetrievalModel:
         ]
         # no need to add prefix for instruct models
         if self.prefix_type == "query_or_passage":
-            input_texts = ["passage: {}".format(t) for t in input_texts]
+            input_texts = ["passage <PST>: {}".format(t) for t in input_texts]
         elif self.prefix_type == "nomic":
             input_texts = ["search_document: {}".format(t) for t in input_texts]
         # doing nothing for bge, none, instruction models
