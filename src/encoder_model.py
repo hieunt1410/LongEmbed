@@ -11,7 +11,7 @@ import numpy as np
 from tqdm import tqdm
 from torch import Tensor
 from transformers import AutoModel, AutoTokenizer, AutoConfig
-from custom_models.custom_e5_mistral import MistralForCausalLM
+from custom_models.custom_e5_mistral import MistralForCausalLM, MistralModel
 
 from utils import move_to_cuda, create_batch_dict, pool, logger, get_chunked_docs
 from model_utils import replace_with_xformers, use_self_extend
@@ -74,7 +74,7 @@ class RetrievalModel:
         if args.rotary_scaling_factor:
             model_kwargs["rotary_scaling_factor"] = args.rotary_scaling_factor
 
-        self.encoder = MistralForCausalLM.from_pretrained(
+        self.encoder = MistralModel.from_pretrained(
             args.model_name_or_path,
             torch_dtype=torch.float16 if args.use_fp16 else torch.float32,
             config=config,
