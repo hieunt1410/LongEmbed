@@ -17,6 +17,7 @@ from transformers.models.mistral.modeling_mistral import (
     MistralMLP,
     MistralRMSNorm,
     MistralPreTrainedModel,
+    MistralAttention
 )
 from transformers.cache_utils import Cache, DynamicCache, StaticCache
 from transformers.modeling_attn_mask_utils import AttentionMaskConverter
@@ -128,29 +129,23 @@ class MistralAttention(nn.Module):
         self.attention_dropout = config.attention_dropout
         self.hidden_size = config.hidden_size
         self.num_heads = config.num_attention_heads
-        self.head_dim = getattr(config, "head_dim", None) or (self.hidden_size // self.num_heads)
+        self.head_dim = config.head_dim
         self.num_key_value_heads = config.num_key_value_heads
         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
         self.max_position_embeddings = config.max_position_embeddings
         self.rope_theta = config.rope_theta
-        self.is_causal = True
+        self.is_causal = False
 
-        self.q_proj = nn.Linear(
-            self.hidden_size, self.num_heads * self.head_dim, bias=config.attention_bias
-        )
+        self.q_proj = nn.Linear(self.hidden_size, self.num_heads * self.head_dim)
         self.k_proj = nn.Linear(
             self.hidden_size,
             self.num_key_value_heads * self.head_dim,
-            bias=config.attention_bias,
         )
         self.v_proj = nn.Linear(
             self.hidden_size,
             self.num_key_value_heads * self.head_dim,
-            bias=config.attention_bias,
         )
-        self.o_proj = nn.Linear(
-            self.num_heads * self.head_dim, self.hidden_size, bias=config.attention_bias
-        )
+        self.o_proj = nn.Linear(self.num_heads * self.head_dim, self.hidden_size)
 
         self.rotary_emb = MistralRotaryEmbedding(config=self.config)
 
@@ -412,7 +407,7 @@ class MistralModel(MistralPreTrainedModel):
         self.post_init()
         self.plan = "tp"
         self.tp_starting_index = 1
-        self.tp_exiting_index = 99
+        self.tp_exiting_index = 27
 
     def get_input_embeddings(self):
         return self.embed_tokens
@@ -558,10 +553,12 @@ class MistralModel(MistralPreTrainedModel):
                         B = hidden_states.shape[0]
                         # Mean pooling over non-padding tokens
                         if attention_mask is not None:
-                            mask = attention_mask.unsqueeze(-1).float()  # (B, seq_len, 1)
-                            mean_embeddings = (hidden_states * mask).sum(dim=1) / mask.sum(
+                            mask = attention_mask.unsqueeze(
+                                -1
+                            ).float()  # (B, seq_len, 1)
+                            mean_embeddings = (hidden_states * mask).sum(
                                 dim=1
-                            ).clamp(min=1.0)  # (B, dim)
+                            ) / mask.sum(dim=1).clamp(min=1.0)  # (B, dim)
                         else:
                             mean_embeddings = hidden_states.mean(dim=1)  # (B, dim)
 
