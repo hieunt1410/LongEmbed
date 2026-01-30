@@ -10,8 +10,8 @@ import numpy as np
 
 from tqdm import tqdm
 from torch import Tensor
-from transformers import AutoModel, AutoTokenizer, AutoConfig
-from custom_models.custom_e5_mistral import MistralForCausalLM, MistralModel
+from transformers import AutoTokenizer, AutoConfig
+from custom_models.custom_e5_mistral import MistralModel
 
 from utils import move_to_cuda, create_batch_dict, pool, logger, get_chunked_docs
 from model_utils import replace_with_xformers, use_self_extend
@@ -145,7 +145,7 @@ class RetrievalModel:
         self, queries: List[str], batch_size: int = 64, **kwargs
     ) -> np.ndarray:
         # in retrieval settings, queries are usually short, so we don't need to chunk them
-        batch_size = max(batch_size, 64)
+        # batch_size = min(batch_size, 64)
         if self.prefix_type == 'query_or_passage':
             input_texts = [f'query: <PST> {q}' for q in queries]
         else:
