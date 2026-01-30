@@ -10,7 +10,7 @@ import numpy as np
 
 from tqdm import tqdm
 from torch import Tensor
-from transformers import AutoTokenizer, AutoConfig
+from transformers import AutoTokenizer, AutoConfig, AutoModel
 from custom_models.custom_e5_mistral import MistralModel
 
 from utils import move_to_cuda, create_batch_dict, pool, logger, get_chunked_docs
@@ -74,14 +74,24 @@ class RetrievalModel:
         if args.rotary_scaling_factor:
             model_kwargs["rotary_scaling_factor"] = args.rotary_scaling_factor
 
-        self.encoder = MistralModel.from_pretrained(
-            args.model_name_or_path,
-            torch_dtype=torch.float16 if args.use_fp16 else torch.float32,
-            config=config,
-            ignore_mismatched_sizes=False,
-            trust_remote_code=True,
-            **model_kwargs,
-        )
+        if args.plan == "tp":
+            self.encoder = MistralModel.from_pretrained(
+                args.model_name_or_path,
+                torch_dtype=torch.float16 if args.use_fp16 else torch.float32,
+                config=config,
+                ignore_mismatched_sizes=False,
+                trust_remote_code=True,
+                **model_kwargs,
+            )
+        else:
+            self.encoder = AutoModel.from_pretrained(
+                args.model_name_or_path,
+                torch_dtype=torch.float16 if args.use_fp16 else torch.float32,
+                config=config,
+                ignore_mismatched_sizes=False,
+                trust_remote_code=True,
+                **model_kwargs,
+            )
 
         self.tokenizer = AutoTokenizer.from_pretrained(args.model_name_or_path)
 
@@ -147,9 +157,15 @@ class RetrievalModel:
         # in retrieval settings, queries are usually short, so we don't need to chunk them
         # batch_size = min(batch_size, 64)
         if self.prefix_type == 'query_or_passage':
-            input_texts = [f'query: <PST> {q}' for q in queries]
+            if self.args.plan == "tp":
+                input_texts = [f'query: <PST> {q}' for q in queries]
+            else:
+                input_texts = [f'query: {q}' for q in queries]
         else:
-            input_texts = [self.prompt + q for q in queries]
+            if self.args.plan == "tp":
+                input_texts = [f'{self.prompt} <PST> {q}' for q in queries]
+            else:
+                input_texts = [self.prompt + q for q in queries]
 
         encoded_embeds: np.ndarray = self._do_encode(input_texts, batch_size)
         # normalize each row of encoded_embeds, using numpy
@@ -174,10 +190,16 @@ class RetrievalModel:
         else:
             chunked_corpus = corpus
 
-        input_texts = [
-            "{} <PST> {}".format(doc.get("title", ""), doc["text"]).strip()
-            for doc in chunked_corpus
-        ]
+        if self.args.plan == "tp":
+            input_texts = [
+                "{} <PST> {}".format(doc.get("title", ""), doc["text"]).strip()
+                for doc in chunked_corpus
+            ]
+        else:
+            input_texts = [
+                "{} {}".format(doc.get("title", ""), doc["text"]).strip()
+                for doc in chunked_corpus
+            ]
         # no need to add prefix for instruct models
         if self.prefix_type == "query_or_passage":
             input_texts = ["passage: {}".format(t) for t in input_texts]
