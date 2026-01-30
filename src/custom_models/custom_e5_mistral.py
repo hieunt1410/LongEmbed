@@ -128,7 +128,7 @@ class MistralAttention(nn.Module):
         self.attention_dropout = config.attention_dropout
         self.hidden_size = config.hidden_size
         self.num_heads = config.num_attention_heads
-        self.head_dim = getattr(config, "head_dim", self.hidden_size // self.num_heads)
+        self.head_dim = getattr(config, "head_dim", None) or (self.hidden_size // self.num_heads)
         self.num_key_value_heads = config.num_key_value_heads
         self.num_key_value_groups = self.num_heads // self.num_key_value_heads
         self.max_position_embeddings = config.max_position_embeddings
@@ -557,10 +557,16 @@ class MistralModel(MistralPreTrainedModel):
                     elif index >= layer_index and index < exiting_index:
                         B = hidden_states.shape[0]
                         # Mean pooling over non-padding tokens
-                        mask = attention_mask.unsqueeze(-1).float()  # (B, seq_len, 1)
-                        mean_embeddings = (hidden_states * mask).sum(dim=1) / mask.sum(
-                            dim=1
-                        )  # (B, dim)
+                        if attention_mask is not None:
+                            mask = attention_mask.unsqueeze(-1).float()  # (B, seq_len, 1)
+                            mean_embeddings = (hidden_states * mask).sum(dim=1) / mask.sum(
+                                dim=1
+                            ).clamp(min=1.0)  # (B, dim)
+                        else:
+                            mean_embeddings = hidden_states.mean(dim=1)  # (B, dim)
+
+                        # Avoid in-place modification to preserve autograd graph
+                        hidden_states = hidden_states.clone()
                         hidden_states[torch.arange(B), pst_token_indices, :] = (
                             mean_embeddings
                         )
