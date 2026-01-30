@@ -148,7 +148,7 @@ class RetrievalModel:
         # in retrieval settings, queries are usually short, so we don't need to chunk them
         batch_size = max(batch_size, 64)
         if self.prefix_type == 'query_or_passage':
-            input_texts = [f'query: {q}' for q in queries]
+            input_texts = [f'query: <PST> {q}' for q in queries]
         else:
             input_texts = [self.prompt + q for q in queries]
 
@@ -181,7 +181,7 @@ class RetrievalModel:
         ]
         # no need to add prefix for instruct models
         if self.prefix_type == "query_or_passage":
-            input_texts = ["passage <PST>: {}".format(t) for t in input_texts]
+            input_texts = ["passage: <PST> {}".format(t) for t in input_texts]
         elif self.prefix_type == "nomic":
             input_texts = ["search_document: {}".format(t) for t in input_texts]
         # doing nothing for bge, none, instruction models

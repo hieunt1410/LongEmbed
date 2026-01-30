@@ -230,7 +230,7 @@ def get_task_def_by_task_name_and_type(task_name: str, task_type: str) -> str:
             "EcomRetrieval": "Given a user query from an e-commerce website, retrieve description sentences of relevant products",
             "MedicalRetrieval": "Given a medical question, retrieve user replies that best answer the question",
             "VideoRetrieval": "Given a video search query, retrieve the titles of relevant videos",
-            "coliee_task1": "Given a legal question, retrieve relevant legal documents that answer the question <PST>",
+            "coliee_task1": "Given a legal question, retrieve relevant legal documents that answer the question",
         }
 
         # add lower case keys to match some beir names
