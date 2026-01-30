@@ -387,7 +387,7 @@ class MistralModel(MistralPreTrainedModel):
                         if attention_mask is not None:
                             mask = attention_mask.unsqueeze(
                                 -1
-                            ).float()  # (B, seq_len, 1)
+                            ).to(hidden_states.dtype)  # (B, seq_len, 1)
                             mean_embeddings = (hidden_states * mask).sum(
                                 dim=1
                             ) / mask.sum(dim=1).clamp(min=1.0)  # (B, dim)
