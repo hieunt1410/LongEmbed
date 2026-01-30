@@ -365,7 +365,7 @@ def get_args(input_args: Optional[Sequence[str]] = None) -> argparse.Namespace:
         )
     elif args.prefix_type == "instruction":
         task_def: str = get_task_def_by_task_name_and_type(
-            task_name="Needles", task_type="Retrieval"
+            task_name="coliee_task1", task_type="Retrieval"
         )
         args.prompt: str = get_detailed_instruct(task_def)
     elif args.prefix_type == "nomic":
