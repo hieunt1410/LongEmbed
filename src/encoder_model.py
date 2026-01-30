@@ -74,7 +74,7 @@ class RetrievalModel:
         if args.rotary_scaling_factor:
             model_kwargs["rotary_scaling_factor"] = args.rotary_scaling_factor
 
-        self.encoder = MistralModel.from_pretrained(
+        self.encoder = MistralForCausalLM.from_pretrained(
             args.model_name_or_path,
             torch_dtype=torch.float16 if args.use_fp16 else torch.float32,
             config=config,
