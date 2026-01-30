@@ -8,13 +8,13 @@ from utils import logger, get_args
 from encoder_model import RetrievalModel
 
 # Import custom LEMB tasks
-from LEMBNeedleRetrieval import LEMBNeedleRetrieval
-from LEMBPasskeyRetrieval import LEMBPasskeyRetrieval
-from LEMBNarrativeQARetrieval import LEMBNarrativeQARetrieval
-from LEMBQMSumRetrieval import LEMBQMSumRetrieval
-from LEMBSummScreenFDRetrieval import LEMBSummScreenFDRetrieval
-from LEMBWikimQARetrieval import LEMBWikimQARetrieval
-from coliee_task1 import ColieeTask1
+from custom_datasets.LEMBNeedleRetrieval import LEMBNeedleRetrieval
+from custom_datasets.LEMBPasskeyRetrieval import LEMBPasskeyRetrieval
+from custom_datasets.LEMBNarrativeQARetrieval import LEMBNarrativeQARetrieval
+from custom_datasets.LEMBQMSumRetrieval import LEMBQMSumRetrieval
+from custom_datasets.LEMBSummScreenFDRetrieval import LEMBSummScreenFDRetrieval
+from custom_datasets.LEMBWikimQARetrieval import LEMBWikimQARetrieval
+from custom_datasets.coliee_task1 import ColieeTask1
 
 # Map task names to task classes for MTEB v2
 CUSTOM_TASKS = {

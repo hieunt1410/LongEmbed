@@ -5,7 +5,6 @@ from mteb.types import PromptType
 import math
 import os
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
